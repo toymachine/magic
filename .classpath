@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/clojure-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-api-1.0-sdk-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-api-labs-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-api-stubs-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-local-runtime-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-local-runtime-shared-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-magic-0.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-testing-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/appengine-tools-api-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-el-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-exec-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/dev/commons-logging-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/dev/geronimo-jsp_2.1_spec-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/dev/jasper-runtime-5.0.28.jar"/>
+	<classpathentry kind="lib" path="lib/dev/jstl-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/dev/lein-eclipse-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/dev/ring-core-0.3.8.jar"/>
+	<classpathentry kind="lib" path="lib/dev/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/dev/standard-1.1.2.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

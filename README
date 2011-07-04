@@ -1,0 +1,6 @@
+lein clean
+lein repl
+
+(require '[appengine-magic.core :as ae])
+(use 'magic.core :reload) 
+(ae/serve magic-app)      
