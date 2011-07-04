@@ -2,8 +2,7 @@
   (:use compojure.core)
   (:use hiccup.core)
   (:use hiccup.page-helpers)
-  (:require [compojure.route :as route]
-            [compojure.handler :as handler])
+  (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae]))
 
 (defn index-page []
