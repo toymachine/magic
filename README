@@ -12,7 +12,8 @@ goal
 - language
     - clojure
 - login
-    - openid
+    - openid (using openid4java)
+    	- TODO implement association store (and other), such that it can be used in app engine
         - google
         - hyves
     - facebook connect
@@ -24,6 +25,8 @@ goal
     - compojure routing
     - hiccup templateing
         ?default escaping?
+        - url building?        
     - member role
         - sandbar
-
+- default error pages
+	dev vs live
