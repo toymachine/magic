@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="lib/dev/ring-core-0.3.8.jar"/>
 	<classpathentry kind="lib" path="lib/dev/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/dev/standard-1.1.2.jar"/>
+	<classpathentry kind="lib" path="/home/henk/workspace/magic/lib/google-collections-1.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

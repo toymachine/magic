@@ -4,18 +4,18 @@
   (:use hiccup.core)
   (:use hiccup.page-helpers)
   (:use ring.util.response)
+  (:use ring.middleware.reload)
+  (:use ring.middleware.cookies)
+  (:use ring.middleware.stacktrace)
   (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae])
-  (:import [org.openid4java.consumer ConsumerManager]))
+  (:import [org.openid4java.consumer ConsumerManager])
+  (:import [com.google.inject Guice])
+  (:import [org.openid4java.appengine AppEngineGuiceModule]))
 
 (defn index-page [req]
-  (do
-    (->
-      (response
-        (html
-          [:h2 "Hello World body Нидерланды!"]))
-      (content-type "text/html")
-      )))
+  (html
+    [:h2 "Hello World body3 Нидерланды!" "cookies" (req :cookies)]))      
    
 (defn login-page []
   (html
@@ -35,11 +35,12 @@
 
 (defn request-openid [req]
   "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
-  (let [cm (ConsumerManager.)
+  (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])
+        cm (.getInstance injector ConsumerManager)
         return-url "http://localhost:8080/auth-openid"
-        ;user-supplied-string "https://www.google.com/accounts/o8/id"
+        user-supplied-string "https://www.google.com/accounts/o8/id"
         ;user-supplied-string "http://www.hyves.nl"
-        user-supplied-string "http://toymachine.hyves.nl"
+        ;user-supplied-string "http://toymachine.hyves.nl"
         discoveries (.discover cm user-supplied-string)
         discovered (.associate cm discoveries)
         auth-req (.authenticate cm discovered return-url)
@@ -74,8 +75,10 @@
 
 
 ;ring app
-(def app (-> main-routes))
-;           (wrap-ae-session)))
+(def app (-> main-routes
+           (wrap-reload '(magic.core))
+           (wrap-stacktrace)
+           (wrap-cookies)))
 
 (ae/def-appengine-app magic-app (var app))
 

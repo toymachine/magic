@@ -1,5 +1,5 @@
 (ns start)
 
 (require '[appengine-magic.core :as ae])
-(use 'magic.core :reload) 
+(use 'magic.core) 
 (ae/serve magic-app)      

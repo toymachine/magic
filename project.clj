@@ -5,6 +5,11 @@
                  [hiccup "0.3.6"]
                  [digest "1.2.1"]
                  [fs "0.8.1"]
-                 [org.openid4java/openid4java-consumer "0.9.5"]]
+                 [org.openid4java/openid4java-nodeps "0.9.6"]
+                 [org.apache.httpcomponents/httpclient "4.1.1"]
+                 [com.google.collections/google-collections "1.0"]
+                 [com.google.inject/guice "2.0"]]
   :dev-dependencies [[appengine-magic "0.4.2"]
-                     [lein-eclipse "1.0.0"]])
+                     [lein-eclipse "1.0.0"]
+                     [ring/ring-devel "0.3.10"]]
+  :repl-init start)
