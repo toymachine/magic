@@ -9,6 +9,7 @@
   (:use ring.middleware.session)
   (:use ring.middleware.params)
   (:use ring.middleware.session.cookie)
+  (:use magic.util)
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
   (:require [compojure.route :as route])
@@ -25,19 +26,17 @@
   	[:div "session" (req :session)]
     [:div "params" (req :params)]))      
    
-(defn- str-map [m]
-  (string/join "\n" (for [[k v] m] (str k "=>" v))))
-
 (defn test-page [req]
   (let [resp
         (-> 
           (response (html
-    [:h2 "Test"]
-    [:div "request"
-     [:pre (str-map req)]]
-		[:pre "cookies: " (str-map (req :cookies))]
-  	[:pre "session: " (str-map (req :session))]
-    [:pre "params: " (str-map (req :params))]))
+                      [:h2 "Test"]
+                      [:div "request"
+                       [:pre (str-map req)]]
+                      [:pre "cookies: " (str-map (req :cookies))]
+                      [:pre "session: " (str-map (req :session))]
+                      [:pre "params: " (str-map (req :params))]
+                      [:pre "base-url: " (base-url req)]))
           (content-type "text/html"))]
     (println "session in" (req :session))
     resp))

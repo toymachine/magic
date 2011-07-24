@@ -2,6 +2,7 @@
   (:use hiccup.core)
   (:use hiccup.page-helpers)
   (:use ring.util.response)
+  (:use magic.util)
   (:import [org.openid4java.consumer ConsumerManager])
   (:import [com.google.inject Guice])
   (:import [org.openid4java.appengine AppEngineGuiceModule]))
@@ -15,18 +16,15 @@
       [:input {:type "submit"}]]))
 
 (defn auth-openid [req]
-  (println "openid get resp return")
-  (println req))
-
-(defn auth-openid-post [req]
-  (println "openid post resp return")
-  (println req))
+  (html
+    [:h2 "auth-openid"]
+    [:pre "params" (str-map (req :params))]))
 
 (defn request-openid [req]
   "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
   (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])
         cm (.getInstance injector ConsumerManager)
-        return-url "http://localhost:8080/auth-openid"
+        return-url (str (base-url req) "/auth-openid")
         user-supplied-string "https://www.google.com/accounts/o8/id"
         discoveries (.discover cm user-supplied-string)
         discovered (.associate cm discoveries)
