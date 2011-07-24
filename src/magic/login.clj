@@ -5,8 +5,14 @@
   (:use magic.util)
   (:import [org.openid4java.consumer ConsumerManager])
   (:import [com.google.inject Guice])
-  (:import [org.openid4java.appengine AppEngineGuiceModule]))
+  (:import [org.openid4java.appengine AppEngineGuiceModule AppEngineNonceVerifier]))
 
+(def *consumer-manager*
+  (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])
+        cm (.getInstance injector ConsumerManager)]
+    (.setNonceVerifier cm (new AppEngineNonceVerifier 60))
+    cm))
+    
 (defn login-page []
   (html
     [:span "openid login:"]
@@ -22,8 +28,7 @@
 
 (defn request-openid [req]
   "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
-  (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])
-        cm (.getInstance injector ConsumerManager)
+  (let [cm *consumer-manager*
         return-url (str (base-url req) "/auth-openid")
         user-supplied-string "https://www.google.com/accounts/o8/id"
         discoveries (.discover cm user-supplied-string)
