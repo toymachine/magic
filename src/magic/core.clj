@@ -10,6 +10,7 @@
   (:use ring.middleware.params)
   (:use ring.middleware.session.cookie)
   (:use magic.util)
+  (:use magic.session)
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
   (:require [compojure.route :as route])
@@ -24,6 +25,7 @@
      [:pre (str req)]]
 		[:div "cookies" (req :cookies)]
   	[:div "session" (req :session)]
+    [:div "ae-session" (req :ae-session)]
     [:div "params" (req :params)]))      
    
 (defn test-page [req]
@@ -35,11 +37,13 @@
                        [:pre (str-map req)]]
                       [:pre "cookies: " (str-map (req :cookies))]
                       [:pre "session: " (str-map (req :session))]
+                      [:pre "ae-session: " (str-map (req :ae-session))]
                       [:pre "params: " (str-map (req :params))]
                       [:pre "base-url: " (base-url req)]))
           (content-type "text/html"))]
     (println "session in" (req :session))
     resp))
+;    (assoc-in resp [:ae-session "jaap"] "aap")))
 
 
 (defn skeleton-page []
@@ -69,6 +73,7 @@
 (def app (-> main-routes
            (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET})
                           :cookie-name "RS"})
+           (wrap-ae-session {:session-key :ae-session})
            (wrap-params)
            (wrap-reload '(magic.core magic.login))
            (wrap-stacktrace)))
