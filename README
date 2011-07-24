@@ -1,6 +1,29 @@
-lein clean
+start with
+
 lein repl
 
-(require '[appengine-magic.core :as ae])
-(use 'magic.core :reload) 
-(ae/serve magic-app)      
+(this will start dev server and repl, startup code in ns start.clj)
+
+
+goal    
+    - google app engine hosted site written in clojure and with all non-functionals already satisfied
+
+
+- language
+    - clojure
+- login
+    - openid
+        - google
+        - hyves
+    - facebook connect
+- orm   
+    app engine/app engine magic
+- frontend
+    - jquery
+    - full ajax, e.g. surrounding frame and # (or html5 state API)
+    - compojure routing
+    - hiccup templateing
+        ?default escaping?
+    - member role
+        - sandbar
+

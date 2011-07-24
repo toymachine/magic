@@ -7,16 +7,32 @@
   (:use ring.middleware.reload)
   (:use ring.middleware.cookies)
   (:use ring.middleware.stacktrace)
+  (:use ring.middleware.session)
+  (:use ring.middleware.session.cookie)
   (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae])
   (:import [org.openid4java.consumer ConsumerManager])
   (:import [com.google.inject Guice])
   (:import [org.openid4java.appengine AppEngineGuiceModule]))
 
+(def SESSION_COOKIE_SECRET "pi@tbrakj00pbr$k")
+
 (defn index-page [req]
   (html
     [:h2 "Hello World body3 Нидерланды!" "cookies" (req :cookies)]))      
    
+(defn test-page [req]
+  (let [resp
+        (-> 
+          (response "hello world!")
+          (content-type "text/html"))]
+    (println "session in" (req :session))
+    resp))
+
+;    (let [resp2 (assoc-in resp [:session "aap"] "piet")]
+;      (println "session out" resp2)
+;      resp2)))
+
 (defn login-page []
   (html
     [:span "openid:"]
@@ -39,8 +55,6 @@
         cm (.getInstance injector ConsumerManager)
         return-url "http://localhost:8080/auth-openid"
         user-supplied-string "https://www.google.com/accounts/o8/id"
-        ;user-supplied-string "http://www.hyves.nl"
-        ;user-supplied-string "http://toymachine.hyves.nl"
         discoveries (.discover cm user-supplied-string)
         discovered (.associate cm discoveries)
         auth-req (.authenticate cm discovered return-url)
@@ -66,6 +80,7 @@
 (defroutes main-routes
   (GET "/" [] (skeleton-page))
   (GET "/login" [] (login-page))
+  (GET "/test" [:as r] (test-page r))
   (GET "/auth-openid" [:as r] (auth-openid r))
   (POST "/auth-openid" [:as r] (auth-openid-post r))
   (POST "/request-openid" [:as r] (request-openid r))
@@ -78,7 +93,9 @@
 (def app (-> main-routes
            (wrap-reload '(magic.core))
            (wrap-stacktrace)
-           (wrap-cookies)))
+           (wrap-cookies)
+           (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET})
+                          :cookie-name "RS"})))
 
 (ae/def-appengine-app magic-app (var app))
 
