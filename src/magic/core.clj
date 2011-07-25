@@ -13,6 +13,7 @@
   (:use magic.session)
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
+  (:require [magic.member :as member])
   (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae]))
 
@@ -39,11 +40,12 @@
                       [:pre "session: " (str-map (req :session))]
                       [:pre "ae-session: " (str-map (req :ae-session))]
                       [:pre "params: " (str-map (req :params))]
-                      [:pre "base-url: " (base-url req)]))
+                      [:pre "base-url: " (base-url req)]
+                      [:pre "logged in member: " (member/get-logged-in)]))
           (content-type "text/html"))]
     (println "session in" (req :session))
     resp))
-;    (assoc-in resp [:ae-session "jaap"] "aap")))
+    ;(assoc-in resp [:session :lm] 2)))
 
 
 (defn skeleton-page []
@@ -54,6 +56,8 @@
      (include-css "/static/css/reset.css" "/static/css/main.css")]
     [:body
      [:h1 "Hello World!"]
+     (when (member/is-logged-in)
+       [:h2 "Hello loggedin, your name = " (member/full-name (member/get-logged-in))])
      [:div {:id "page-body"}]
      (include-js "/static/js/jquery-1.6.2.min.js" "/static/js/main.js")
      ]))
@@ -71,11 +75,11 @@
 
 ;ring app
 (def app (-> main-routes
-           (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET})
-                          :cookie-name "RS"})
+           (member/wrap-logged-in-member)
+           (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET}) :cookie-name "RS"})
            (wrap-ae-session {:session-key :ae-session})
            (wrap-params)
-           (wrap-reload '(magic.core magic.login))
+           (wrap-reload '(magic.core magic.login magic.member))
            (wrap-stacktrace)))
 
 (ae/def-appengine-app magic-app (var app))

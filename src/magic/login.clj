@@ -31,11 +31,11 @@
         query-string (str (.getQueryString http-request))
         receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
         verification (.verify cm receiving-url parameter-map discovered)
-        verified (.getVerifiedId verification)]
+        verified-id (.getVerifiedId verification)]
     (-> (response (html
                     [:h2 "auth-openid"]
                     [:h3 "rec url" receiving-url]
-                    [:h3 "verified: " verified]
+                    [:h3 "verified-id: " verified-id]
                     [:pre "params" (str-map (req :params))]))
       (content-type "text/html")
       (assoc :ae-session (dissoc ae-session "openid-disc"))
