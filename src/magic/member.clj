@@ -1,6 +1,7 @@
 (ns magic.member
   (:require [appengine-magic.services.datastore :as ds])
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string])
+  (:require [magic.session :as session]))
 
 (ds/defentity Member [identifier, first-name, middle-name, last-name, email])
 
@@ -15,11 +16,11 @@
 
 (defn wrap-logged-in-member [app]
   (fn [req]
-    (let [session (req :session)
-          session-logged-in-member-id (session :lm)
-          session-logged-in-member (when session-logged-in-member-id (ds/retrieve Member session-logged-in-member-id))]
-      (if session-logged-in-member
-        (binding [*logged-in-member* session-logged-in-member]
+    (let [member-id (session/get-from-cookie :lm)
+          logged-in-member (when member-id (ds/retrieve Member member-id))]
+      (if logged-in-member
+        ;bind logged in member for this request
+        (binding [*logged-in-member* logged-in-member]
           (app req))
         ;no logged in member:
         (app req)))))

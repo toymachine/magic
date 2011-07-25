@@ -1,5 +1,20 @@
 (ns magic.session)
 
+(def *cookie-session* nil)
+(def *memory-session* nil)
+
+(defn get-from-cookie [key]
+  (*cookie-session* key))
+
+(defn get-from-memory [key]
+  (*memory-session* key))
+
+(defn wrap-stateful-sessions [app]
+  (fn [req]
+    (binding [*cookie-session* (req :session)
+              *memory-session* (req :ae-session)] 
+      (app req))))
+
 (defn wrap-ae-session 
   ([app]
     (wrap-ae-session app {}))

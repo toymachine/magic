@@ -23,14 +23,13 @@
      [:input {:type "text"}]
      [:input {:type "submit"}]]))
 
-(defn- create-auth-openid []
+(defn- create-auth-openid [session]
   (fn [req]
     (let [cm *consumer-manager*
           http-request (req :request)
           parameter-map (new ParameterList (.getParameterMap http-request))
-          ae-session (req :ae-session)
           auth-req-id (get-in req [:params "auth-req-id"])
-          discovered (ae-session auth-req-id)
+          discovered ((session :get) req auth-req-id)
           query-string (str (.getQueryString http-request))
           receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
           verification (.verify cm receiving-url parameter-map discovered)
@@ -41,10 +40,11 @@
                       [:h3 "verified-id: " verified-id]
                       [:pre "params" (str-map (req :params))]))
         (content-type "text/html")
-        (assoc :ae-session (dissoc ae-session auth-req-id))
+        ((session :del) req auth-req-id)
         ))))
 
-(defn- create-request-openid []
+(defn- create-request-openid [session]
+  (println (session :put))
   (fn [req]
     "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
     (let [cm *consumer-manager*
@@ -58,14 +58,14 @@
       (-> 
         (redirect (.getDestinationUrl auth-req true))
         ;we will need discovered later when op returns to /auth-openid
-        (assoc-in [:ae-session auth-req-id] discovered)
+        ((session :put) auth-req-id discovered)
         (update-in [:headers "Location"] str
                    "&openid.ns.ax=http://openid.net/srv/ax/1.0"
                    "&openid.ax.mode=fetch_request"
                    "&openid.ax.required=email"
                    "&openid.ax.type.email=http://axschema.org/contact/email")))))
 
-(defn create-login-handlers []
-  {:auth-openid (create-auth-openid)
-   :request-openid (create-request-openid)})
+(defn create-login-handlers [session]
+  {:auth-openid (create-auth-openid session)
+   :request-openid (create-request-openid session)})
   

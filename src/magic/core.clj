@@ -10,7 +10,7 @@
   (:use ring.middleware.params)
   (:use ring.middleware.session.cookie)
   (:use magic.util)
-  (:use magic.session)
+  (:require [magic.session :as session])
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
   (:require [magic.member :as member])
@@ -61,9 +61,15 @@
      [:div {:id "page-body"}]
      (include-js "/static/js/jquery-1.6.2.min.js" "/static/js/main.js")
      ]))
+
+  
+(defn session-wrapper [session-key]
+  {:put (fn [resp key val] (assoc-in resp [session-key key] val))
+   :get (fn [req key] (get-in req [session-key key]))
+   :del (fn [resp req key] (assoc resp session-key (dissoc (req session-key) key)))})
   
 (def login-handlers
-  (login/create-login-handlers))
+  (login/create-login-handlers (session-wrapper :ae-session)))
 
 (defroutes main-routes
   (GET "/" [] (skeleton-page))
@@ -76,13 +82,14 @@
   (route/files "/static" {:root "static"})
   (route/not-found "Page not found"))
 
-;ring app
+;ring app (wrappers execute from outer (wrap-stacktrace) to inner (wrap-logged-in-member)
 (def app (-> main-routes
            (member/wrap-logged-in-member)
+           (session/wrap-stateful-sessions)
            (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET}) :cookie-name "RS"})
-           (wrap-ae-session {:session-key :ae-session})
+           (session/wrap-ae-session {:session-key :ae-session})
            (wrap-params)
-           (wrap-reload '(magic.core magic.login magic.member))
+           (wrap-reload '(magic.core magic.login magic.member magic.session))
            (wrap-stacktrace)))
 
 (ae/def-appengine-app magic-app (var app))
