@@ -41,4 +41,7 @@
     (println (ds/key-id henk))))
 
 (defn testy []
-  (ds/retrieve Member 2))
+  (let [henk (ds/retrieve Member 2)]
+    henk))
+              
+              

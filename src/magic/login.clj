@@ -3,6 +3,7 @@
   (:use hiccup.page-helpers)
   (:use ring.util.response)
   (:use magic.util)
+  (:require [crypto.random :as cr])
   (:import [org.openid4java.consumer ConsumerManager])
   (:import [com.google.inject Guice])
   (:import [org.openid4java.appengine AppEngineGuiceModule AppEngineNonceVerifier])
@@ -13,21 +14,22 @@
         cm (.getInstance injector ConsumerManager)]
     (.setNonceVerifier cm (new AppEngineNonceVerifier 60))
     cm))
-    
+
 (defn login-page []
   (html
     [:span "openid login:"]
     [:form {:method "POST" :action "/request-openid"}
-      "Login"
-      [:input {:type "text"}]
-      [:input {:type "submit"}]]))
+     "Login"
+     [:input {:type "text"}]
+     [:input {:type "submit"}]]))
 
 (defn auth-openid [req]
   (let [cm *consumer-manager*
         http-request (req :request)
         parameter-map (new ParameterList (.getParameterMap http-request))
         ae-session (req :ae-session)
-        discovered (ae-session "openid-disc")
+        auth-req-id (get-in req [:params "auth-req-id"])
+        discovered (ae-session auth-req-id)
         query-string (str (.getQueryString http-request))
         receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
         verification (.verify cm receiving-url parameter-map discovered)
@@ -38,20 +40,23 @@
                     [:h3 "verified-id: " verified-id]
                     [:pre "params" (str-map (req :params))]))
       (content-type "text/html")
-      (assoc :ae-session (dissoc ae-session "openid-disc"))
+      (assoc :ae-session (dissoc ae-session auth-req-id))
       )))
-  
+   
 (defn request-openid [req]
   "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
   (let [cm *consumer-manager*
-        return-url (str (base-url req) "/auth-openid")
+        auth-req-id (cr/hex 16) ;identify this oauth cycle, so that we can put some stuff in session for when op returns
+        realm (base-url req) ; Make sure this stays stable, otherwise google id will changes and all identities are lost
+        return-url (str (base-url req) "/auth-openid?auth-req-id=" auth-req-id)
         user-supplied-string "https://www.google.com/accounts/o8/id"
         discoveries (.discover cm user-supplied-string)
         discovered (.associate cm discoveries)
-        auth-req (.authenticate cm discovered return-url)]
+        auth-req (.authenticate cm discovered return-url realm)]
     (-> 
       (redirect (.getDestinationUrl auth-req true))
-      (assoc-in [:ae-session "openid-disc"] discovered)
+      ;we will need discovered later when op returns to /auth-openid
+      (assoc-in [:ae-session auth-req-id] discovered)
       (update-in [:headers "Location"] str
                  "&openid.ns.ax=http://openid.net/srv/ax/1.0"
                  "&openid.ax.mode=fetch_request"
