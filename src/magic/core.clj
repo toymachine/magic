@@ -62,14 +62,17 @@
      (include-js "/static/js/jquery-1.6.2.min.js" "/static/js/main.js")
      ]))
   
+(def login-handlers
+  (login/create-login-handlers))
+
 (defroutes main-routes
   (GET "/" [] (skeleton-page))
   (GET "/index" [:as r] (index-page r))
   (GET "/test" [:as r] (test-page r))
   (GET "/auth-login" [] (login/login-page))
-  (GET "/auth-openid" [:as r] (login/auth-openid r))
-  (POST "/auth-openid" [:as r] (login/auth-openid r))
-  (POST "/request-openid" [:as r] (login/request-openid r))
+  (GET "/auth-openid" [:as r] ((login-handlers :auth-openid) r))
+  (POST "/auth-openid" [:as r] ((login-handlers :auth-openid) r))
+  (POST "/request-openid" [:as r] ((login-handlers :request-openid) r))
   (route/files "/static" {:root "static"})
   (route/not-found "Page not found"))
 

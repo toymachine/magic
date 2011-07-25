@@ -23,42 +23,49 @@
      [:input {:type "text"}]
      [:input {:type "submit"}]]))
 
-(defn auth-openid [req]
-  (let [cm *consumer-manager*
-        http-request (req :request)
-        parameter-map (new ParameterList (.getParameterMap http-request))
-        ae-session (req :ae-session)
-        auth-req-id (get-in req [:params "auth-req-id"])
-        discovered (ae-session auth-req-id)
-        query-string (str (.getQueryString http-request))
-        receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
-        verification (.verify cm receiving-url parameter-map discovered)
-        verified-id (.getVerifiedId verification)]
-    (-> (response (html
-                    [:h2 "auth-openid"]
-                    [:h3 "rec url" receiving-url]
-                    [:h3 "verified-id: " verified-id]
-                    [:pre "params" (str-map (req :params))]))
-      (content-type "text/html")
-      (assoc :ae-session (dissoc ae-session auth-req-id))
-      )))
-   
-(defn request-openid [req]
-  "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
-  (let [cm *consumer-manager*
-        auth-req-id (cr/hex 16) ;identify this oauth cycle, so that we can put some stuff in session for when op returns
-        realm (base-url req) ; Make sure this stays stable, otherwise google id will changes and all identities are lost
-        return-url (str (base-url req) "/auth-openid?auth-req-id=" auth-req-id)
-        user-supplied-string "https://www.google.com/accounts/o8/id"
-        discoveries (.discover cm user-supplied-string)
-        discovered (.associate cm discoveries)
-        auth-req (.authenticate cm discovered return-url realm)]
-    (-> 
-      (redirect (.getDestinationUrl auth-req true))
-      ;we will need discovered later when op returns to /auth-openid
-      (assoc-in [:ae-session auth-req-id] discovered)
-      (update-in [:headers "Location"] str
-                 "&openid.ns.ax=http://openid.net/srv/ax/1.0"
-                 "&openid.ax.mode=fetch_request"
-                 "&openid.ax.required=email"
-                 "&openid.ax.type.email=http://axschema.org/contact/email"))))
+(defn- create-auth-openid []
+  (fn [req]
+    (let [cm *consumer-manager*
+          http-request (req :request)
+          parameter-map (new ParameterList (.getParameterMap http-request))
+          ae-session (req :ae-session)
+          auth-req-id (get-in req [:params "auth-req-id"])
+          discovered (ae-session auth-req-id)
+          query-string (str (.getQueryString http-request))
+          receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
+          verification (.verify cm receiving-url parameter-map discovered)
+          verified-id (.getVerifiedId verification)]
+      (-> (response (html
+                      [:h2 "auth-openid"]
+                      [:h3 "rec url" receiving-url]
+                      [:h3 "verified-id: " verified-id]
+                      [:pre "params" (str-map (req :params))]))
+        (content-type "text/html")
+        (assoc :ae-session (dissoc ae-session auth-req-id))
+        ))))
+
+(defn- create-request-openid []
+  (fn [req]
+    "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
+    (let [cm *consumer-manager*
+          auth-req-id (cr/hex 16) ;identify this oauth cycle, so that we can put some stuff in session for when op returns
+          realm (base-url req) ; Make sure this stays stable, otherwise google id will changes and all identities are lost
+          return-url (str (base-url req) "/auth-openid?auth-req-id=" auth-req-id)
+          user-supplied-string "https://www.google.com/accounts/o8/id"
+          discoveries (.discover cm user-supplied-string)
+          discovered (.associate cm discoveries)
+          auth-req (.authenticate cm discovered return-url realm)]
+      (-> 
+        (redirect (.getDestinationUrl auth-req true))
+        ;we will need discovered later when op returns to /auth-openid
+        (assoc-in [:ae-session auth-req-id] discovered)
+        (update-in [:headers "Location"] str
+                   "&openid.ns.ax=http://openid.net/srv/ax/1.0"
+                   "&openid.ax.mode=fetch_request"
+                   "&openid.ax.required=email"
+                   "&openid.ax.type.email=http://axschema.org/contact/email")))))
+
+(defn create-login-handlers []
+  {:auth-openid (create-auth-openid)
+   :request-openid (create-request-openid)})
+  
