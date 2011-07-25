@@ -15,34 +15,16 @@
 (defn set-in-memory [key value]
   (set! *memory-session* (assoc *memory-session* key value)))
 
-(defn- update-response [resp req session-out session-key]
-  ;check for new var, updated var, deleted var
-  (let [session-in (req session-key)
-        session-resp 
-        (merge
-          ;find updates and deletes by interating over session-in
-          (reduce 
-            (fn [acc [k v]]
-              (if (not= (session-out k) (session-in k))
-                (assoc acc k (session-out k))
-                acc)) {} session-in)
-          ;find additions by iteration over session-out
-          (reduce
-            (fn [acc [k v]]
-              (if (not (contains? session-in k))
-                (assoc acc k (session-out k))
-                acc)) {} session-out))]
-    (if (not-empty session-resp)
-      (assoc resp session-key session-resp)
-      resp)))
+(defn- assoc-if-not-same [resp req session-key session-state]
+  (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
 
 (defn wrap-stateful-sessions [app]
   (fn [req]
     (binding [*cookie-session* (req :session)
               *memory-session* (req :ae-session)]
       (-> (app req)
-        (update-response req *cookie-session* :session)
-        (update-response req *memory-session* :ae-session)))))
+        (assoc-if-not-same req :session *cookie-session*)
+        (assoc-if-not-same req :ae-session *memory-session*)))))        
 
 (defn wrap-ae-session 
   ([app]

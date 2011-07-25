@@ -44,8 +44,8 @@
                       [:pre "base-url: " (base-url req)]
                       [:pre "logged in member: " (member/get-logged-in)]))
           (content-type "text/html"))]
-    (session/set-in-cookie :blaat "aap")
-    (session/set-in-cookie :lm 3)
+    (session/set-in-cookie :blaat "aap4")
+    (session/set-in-cookie :lm 2)
     resp))
 
 (defn skeleton-page []
