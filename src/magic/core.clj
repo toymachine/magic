@@ -17,6 +17,7 @@
   (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae]))
 
+;TODO put in external file (key store?)
 (def SESSION_COOKIE_SECRET "pi@tbrakj00pbr$k")
 
 (defn index-page [req]
@@ -43,10 +44,9 @@
                       [:pre "base-url: " (base-url req)]
                       [:pre "logged in member: " (member/get-logged-in)]))
           (content-type "text/html"))]
-    (println "session in" (req :session))
+    (session/set-in-cookie :blaat "aap")
+    (session/set-in-cookie :lm 3)
     resp))
-    ;(assoc-in resp [:session :lm] 2)))
-
 
 (defn skeleton-page []
   (html5 	

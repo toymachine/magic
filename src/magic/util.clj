@@ -15,3 +15,19 @@
     (str scheme "://" server-name (when (not= server-port 80) (str ":" server-port)))))
 
 
+(def a {:a 10 :b 20 :c 30})
+
+(def b {:a 11 :b 21 :d 40})
+
+(defn test3 []
+  (merge
+    (reduce 
+      (fn [acc [k v]]
+        (if (not= (b k) (a k))
+          (assoc acc k (b k))
+          acc)) {} a)
+    (reduce
+      (fn [acc [k v]]
+        (if (not (contains? a k))
+          (assoc acc k (b k))
+          acc)) {} b)))
