@@ -14,10 +14,14 @@
 
 (def *logged-in-member* nil)
 
+(defn- get-logged-in-member []
+  (if-let [logged-in-member-id (session/get-value :cookie :lm)]
+    (ds/retrieve Member logged-in-member-id)))
+
 (defn wrap-logged-in-member [app]
   (fn [req]
-    (if-let [logged-in-member (ds/retrieve Member (session/get :cookie :lm))]
-      ;bind logged in member for this request	
+    (if-let [logged-in-member (get-logged-in-member)]			    
+      ;bind logged in member for this request		
       (binding [*logged-in-member* logged-in-member]
         (app req))	
       ;no logged in member:

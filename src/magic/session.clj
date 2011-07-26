@@ -3,32 +3,23 @@
 (def *cookie-session* nil)
 (def *memory-session* nil)
 
-(defn update-cookie [fn & args]
-  (set! *cookie-session* (apply fn (concat [*cookie-session*] args))))
+(defn get-value [c k]
+  (cond (= c :cookie)
+        (get *cookie-session* k)
+        (= c :memory)
+        (get *memory-session* k)))
 
-(defn get-from-cookie [key]
-  (*cookie-session* key))
+(defn put-value! [c k v]
+  (cond (= c :cookie)
+        (set! *cookie-session* (assoc *cookie-session* k v))
+        (= c :memory)
+        (set! *memory-session* (assoc *memory-session* k v))))
 
-(defn set-in-cookie [key value]
-  (set! *cookie-session* (assoc *cookie-session* key value)))
-
-(defn get-from-memory [key]
-  (*memory-session* key))
-
-(defn set-in-memory [key value]
-  (set! *memory-session* (assoc *memory-session* key value)))
-
-(defmulti myset (fn [t k v] t))
-(defmulti myget (fn [t k] t))
-
-(defn def-methods [key]
-  (defmethod myset key [t k v]
-    (println "set cookie!" key ":" k "=>" v))
-  (defmethod myget key [t k]
-    (println "get cookie!" key ":" k)))
-
-(def-methods :cookie)
-(def-methods :memory)
+(defn remove-value! [c k]
+  (cond (= c :cookie)
+        (set! *cookie-session* (dissoc *cookie-session* k))
+        (= c :memory)
+        (set! *memory-session* (dissoc *memory-session* k))))
 
 (defn- assoc-if-not-same [resp req session-key session-state]
   (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
