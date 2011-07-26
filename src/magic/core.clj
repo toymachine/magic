@@ -44,8 +44,8 @@
                       [:pre "base-url: " (base-url req)]
                       [:pre "logged in member: " (member/get-logged-in)]))
           (content-type "text/html"))]
-    (session/set-in-cookie :blaat "aap4")
-    (session/set-in-cookie :lm 2)
+    (session/update-cookie dissoc :blaat)
+    (session/update-cookie assoc :lm 2)
     resp))
 
 (defn skeleton-page []
@@ -87,7 +87,7 @@
            (member/wrap-logged-in-member)
            (session/wrap-stateful-sessions)
            (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET}) :cookie-name "RS"})
-           (session/wrap-ae-session {:session-key :ae-session})
+           (session/wrap-app-engine-session {:session-key :ae-session})
            (wrap-params)
            (wrap-reload '(magic.core magic.login magic.member magic.session))
            (wrap-stacktrace)))

@@ -3,6 +3,9 @@
 (def *cookie-session* nil)
 (def *memory-session* nil)
 
+(defn update-cookie [fn & args]
+  (set! *cookie-session* (apply fn (concat [*cookie-session*] args))))
+
 (defn get-from-cookie [key]
   (*cookie-session* key))
 
@@ -26,9 +29,9 @@
         (assoc-if-not-same req :session *cookie-session*)
         (assoc-if-not-same req :ae-session *memory-session*)))))        
 
-(defn wrap-ae-session 
+(defn wrap-app-engine-session 
   ([app]
-    (wrap-ae-session app {}))
+    (wrap-app-engine-session app {}))
   ([app options] 
     (fn [req]
       (let [session-key (options :session-key :session)

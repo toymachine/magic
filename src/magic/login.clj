@@ -10,10 +10,9 @@
   (:import [org.openid4java.message ParameterList]))
 
 (def *consumer-manager*
-  (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])
-        cm (.getInstance injector ConsumerManager)]
-    (.setNonceVerifier cm (new AppEngineNonceVerifier 60))
-    cm))
+  (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])]
+    (doto (.getInstance injector ConsumerManager)
+      (.setNonceVerifier (new AppEngineNonceVerifier 60)))))
 
 (defn login-page []
   (html

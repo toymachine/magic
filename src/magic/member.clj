@@ -8,7 +8,7 @@
 (defn full-name [member]
   (string/join " " [(:first-name member) (:middle-name member) (:last-name member)]))
   
-(defn find-member-by-identifier [identifier]
+(defn find-by-identifier [identifier]
   (first (ds/query :kind Member
                    :filter (= :identifier identifier))))
 
@@ -16,14 +16,12 @@
 
 (defn wrap-logged-in-member [app]
   (fn [req]
-    (let [member-id (session/get-from-cookie :lm)
-          logged-in-member (when member-id (ds/retrieve Member member-id))]
-      (if logged-in-member
-        ;bind logged in member for this request
-        (binding [*logged-in-member* logged-in-member]
-          (app req))
-        ;no logged in member:
-        (app req)))))
+    (if-let [logged-in-member (ds/retrieve Member (session/get-from-cookie :lm))]
+      ;bind logged in member for this request	
+      (binding [*logged-in-member* logged-in-member]
+        (app req))	
+      ;no logged in member:
+      (app req))))
 
 (defn get-logged-in []
   *logged-in-member*)
@@ -38,7 +36,7 @@
     (ds/save! henk)))
 
 (defn testx []
-  (let [henk (find-member-by-identifier "https://www.google.com/accounts/o8/id?id=AItOawkRzHryaHOxHHHnTGubXO3YOKF0LLDq4Bg")]
+  (let [henk (find-by-identifier "https://www.google.com/accounts/o8/id?id=AItOawkRzHryaHOxHHHnTGubXO3YOKF0LLDq4Bg")]
     (println (ds/key-id henk))))
 
 (defn testy []

@@ -19,15 +19,6 @@
 
 (def b {:a 11 :b 21 :d 40})
 
-(defn test3 []
-  (merge
-    (reduce 
-      (fn [acc [k v]]
-        (if (not= (b k) (a k))
-          (assoc acc k (b k))
-          acc)) {} a)
-    (reduce
-      (fn [acc [k v]]
-        (if (not (contains? a k))
-          (assoc acc k (b k))
-          acc)) {} b)))
+(defn x []
+  (if-let [y (> 3 2)]
+    	y))
