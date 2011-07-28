@@ -16,7 +16,9 @@ goal
     	- TODO implement association store (and other), such that it can be used in app engine
         - google
         - hyves
-    - facebook connect
+    - facebook connect 
+     - persistent cookie, hmaced with secret, contains memberid, timestamp (for expiry), and sign key also includes member guid (to allow direct invalidation (server side) of any outstanding cookies)
+
 - orm   
     app engine/app engine magic
 - frontend
@@ -30,3 +32,5 @@ goal
         - sandbar
 - default error pages
 	dev vs live
+
+- admin site /roles/security
