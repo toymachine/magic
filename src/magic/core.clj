@@ -44,8 +44,6 @@
                       [:pre "base-url: " (base-url req)]
                       [:pre "logged in member: " (member/get-logged-in)]))
           (content-type "text/html"))]
-    (session/update-cookie dissoc :blaat)
-    (session/update-cookie assoc :lm 2)
     resp))
 
 (defn skeleton-page []
@@ -63,13 +61,8 @@
      ]))
 
   
-(defn session-wrapper [session-key]
-  {:put (fn [resp key val] (assoc-in resp [session-key key] val))
-   :get (fn [req key] (get-in req [session-key key]))
-   :del (fn [resp req key] (assoc resp session-key (dissoc (req session-key) key)))})
-  
 (def login-handlers
-  (login/create-login-handlers (session-wrapper :ae-session)))
+  (login/create-login-handlers))
 
 (defroutes main-routes
   (GET "/" [] (skeleton-page))

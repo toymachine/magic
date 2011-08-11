@@ -3,6 +3,7 @@
   (:use hiccup.page-helpers)
   (:use ring.util.response)
   (:use magic.util)
+  (:require [magic.session :as session])
   (:require [crypto.random :as cr])
   (:import [org.openid4java.consumer ConsumerManager])
   (:import [com.google.inject Guice])
@@ -22,13 +23,13 @@
      [:input {:type "text"}]
      [:input {:type "submit"}]]))
 
-(defn- create-auth-openid [session]
+(defn- create-auth-openid []
   (fn [req]
     (let [cm *consumer-manager*
           http-request (req :request)
           parameter-map (new ParameterList (.getParameterMap http-request))
           auth-req-id (get-in req [:params "auth-req-id"])
-          discovered ((session :get) req auth-req-id)
+          discovered (session/get :memory auth-req-id)
           query-string (str (.getQueryString http-request))
           receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
           verification (.verify cm receiving-url parameter-map discovered)
@@ -38,12 +39,10 @@
                       [:h3 "rec url" receiving-url]
                       [:h3 "verified-id: " verified-id]
                       [:pre "params" (str-map (req :params))]))
-        (content-type "text/html")
-        ((session :del) req auth-req-id)
-        ))))
+        (content-type "text/html"))
+      (session/delete! :memory auth-req-id))))
 
-(defn- create-request-openid [session]
-  (println (session :put))
+(defn- create-request-openid []
   (fn [req]
     "Perform OpenID process and build redirect that goes to Google for authentication and requests email address in return"
     (let [cm *consumer-manager*
@@ -54,17 +53,17 @@
           discoveries (.discover cm user-supplied-string)
           discovered (.associate cm discoveries)
           auth-req (.authenticate cm discovered return-url realm)]
+      (session/put! :memory auth-req-id discovered)
       (-> 
         (redirect (.getDestinationUrl auth-req true))
-        ;we will need discovered later when op returns to /auth-openid
-        ((session :put) auth-req-id discovered)
+        ;we will need discovered later when op returns to /auth-openid        
         (update-in [:headers "Location"] str
                    "&openid.ns.ax=http://openid.net/srv/ax/1.0"
                    "&openid.ax.mode=fetch_request"
                    "&openid.ax.required=email"
                    "&openid.ax.type.email=http://axschema.org/contact/email")))))
 
-(defn create-login-handlers [session]
-  {:auth-openid (create-auth-openid session)
-   :request-openid (create-request-openid session)})
+(defn create-login-handlers []
+  {:auth-openid (create-auth-openid)
+   :request-openid (create-request-openid)})
   

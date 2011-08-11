@@ -17,11 +17,13 @@ goal
         - google
         - hyves
     - facebook connect 
-     - persistent cookie, hmaced with secret, contains memberid, timestamp (for expiry), and sign key also includes member guid (to allow direct invalidation (server side) of any outstanding cookies)
+    - persistent cookie, hmaced with secret, contains memberid, timestamp (for expiry), and sign key also includes member guid (to allow direct invalidation (server side) of any outstanding cookies)
+    - brute force detection?
 
 - orm   
     app engine/app engine magic
-- frontend
+- frontend 
+    - javascript modulesystem/dynload?
     - jquery
     - full ajax, e.g. surrounding frame and # (or html5 state API)
     - compojure routing

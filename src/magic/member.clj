@@ -16,7 +16,7 @@
 
 (defn wrap-logged-in-member [app]
   (fn [req]
-    (if-let [logged-in-member (ds/retrieve Member (session/get-from-cookie :lm))]
+    (if-let [logged-in-member (ds/retrieve Member (session/get :cookie :lm))]
       ;bind logged in member for this request	
       (binding [*logged-in-member* logged-in-member]
         (app req))	
