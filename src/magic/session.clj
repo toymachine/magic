@@ -18,6 +18,18 @@
 (defn set-in-memory [key value]
   (set! *memory-session* (assoc *memory-session* key value)))
 
+(defmulti myset (fn [t k v] t))
+(defmulti myget (fn [t k] t))
+
+(defn def-methods [key]
+  (defmethod myset key [t k v]
+    (println "set cookie!" key ":" k "=>" v))
+  (defmethod myget key [t k]
+    (println "get cookie!" key ":" k)))
+
+(def-methods :cookie)
+(def-methods :memory)
+
 (defn- assoc-if-not-same [resp req session-key session-state]
   (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
 
