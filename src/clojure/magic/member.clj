@@ -5,10 +5,13 @@
 
 (ds/defentity Member [identifier, first-name, middle-name, last-name, email])
 
-(defn full-name [member]
+(defn full-name 
+  "gets the full-name of given member"
+  [member]
   (string/join " " [(:first-name member) (:middle-name member) (:last-name member)]))
   
 (defn find-by-identifier [identifier]
+  "find a member by his identifier"
   (first (ds/query :kind Member
                    :filter (= :identifier identifier))))
 
