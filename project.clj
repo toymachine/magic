@@ -6,7 +6,7 @@
                  [digest "1.2.1"]
                  [fs "0.8.1"]
                  [crypto-random "1.0.0"]
-                 [aehttpfetcher "1.1"]
+                 ;[aehttpfetcher "1.1"]
                  [org.openid4java/openid4java-nodeps "0.9.6"]
                  [org.apache.httpcomponents/httpclient "4.1.1"]
                  [com.google.collections/google-collections "1.0"]
@@ -15,4 +15,6 @@
                      [lein-eclipse "1.0.0"]
                      [ring/ring-devel "0.3.10"]
                      [lein-localrepo "0.3"]]
+  :source-path "src/clojure"  
+  :java-source-path "src/java"  
   :repl-init start)
