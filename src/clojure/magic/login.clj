@@ -3,6 +3,7 @@
   (:use hiccup.page-helpers)
   (:use ring.util.response)
   (:use magic.util)
+  (:require [magic.member :as member])  
   (:require [magic.session :as session])
   (:require [crypto.random :as cr])
   (:import [org.openid4java.consumer ConsumerManager])
@@ -32,8 +33,9 @@
         query-string (str (.getQueryString http-request))
         receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
         verification (.verify cm receiving-url parameter-map discovered)
-        verified-id (.getVerifiedId verification)]
+        verified-id (str (.getVerifiedId verification))]
     (session/remove-value! :memory auth-req-id)
+    (member/set-logged-in-member-by-identifier! verified-id)
     (-> (response (html
                     [:h2 "auth-openid"]
                     [:h3 "rec url" receiving-url]

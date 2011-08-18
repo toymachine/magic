@@ -17,6 +17,10 @@
 
 (def *logged-in-member* nil)
 
+(defn set-logged-in-member-by-identifier! [identifier]
+  (if-let [member (find-by-identifier identifier)]
+    (session/put-value! :cookie :lm (ds/key-id member))))
+
 (defn- get-logged-in-member []
   (if-let [logged-in-member-id (session/get-value :cookie :lm)]
     (ds/retrieve Member logged-in-member-id)))
@@ -38,7 +42,7 @@
   
 
 (defn create-henk []
-  (let [henk (Member. "https://www.google.com/accounts/o8/id?id=AItOawkRzHryaHOxHHHnTGubXO3YOKF0LLDq4Bg" 
+  (let [henk (Member. "https://www.google.com/accounts/o8/id?id=AItOawlbMCGmVgXarambOMUhAgTVr9xkrLUwSYY" 
                       "Henk" "", "Punt", "henkpunt@gmail.com")]
     (ds/save! henk)))
 

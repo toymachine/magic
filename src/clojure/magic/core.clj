@@ -42,7 +42,9 @@
                       [:pre "ae-session: " (str-map (req :ae-session))]
                       [:pre "params: " (str-map (req :params))]
                       [:pre "base-url: " (base-url req)]
-                      [:pre "logged in member: " (member/get-logged-in)]))
+                      [:pre "logged in member: " (member/get-logged-in)]
+                      [:pre "logged in member name: " (member/full-name (member/get-logged-in))]
+                      ))
           (content-type "text/html"))]
     resp))
 
@@ -59,7 +61,6 @@
      [:div {:id "page-body"}]
      (include-js "/static/js/jquery-1.6.2.min.js" "/static/js/main.js")
      ]))
-
 
 (defroutes main-routes
   (GET "/" [] (skeleton-page))
