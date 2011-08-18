@@ -14,6 +14,9 @@
         server-port (req :server-port 80)]
     (str scheme "://" server-name (when (not= server-port 80) (str ":" server-port)))))
 
+(defn assoc-if-not-same [resp req session-key session-state]
+  (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
+
 
 (def a {:a 10 :b 20 :c 30})
 

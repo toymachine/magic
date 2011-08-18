@@ -1,35 +1,22 @@
-(ns magic.session)
+(ns magic.session
+  (:use magic.util))
 
-(def *cookie-session* nil)
 (def *memory-session* nil)
 
-(defn get-value [c k]
-  (cond (= c :cookie)
-        (get *cookie-session* k)
-        (= c :memory)
-        (get *memory-session* k)))
+(defn get-value [k]
+	(get *memory-session* k))
 
-(defn put-value! [c k v]
-  (cond (= c :cookie)
-        (set! *cookie-session* (assoc *cookie-session* k v))
-        (= c :memory)
-        (set! *memory-session* (assoc *memory-session* k v))))
+(defn put-value! [k v]
+  (set! *memory-session* (assoc *memory-session* k v)))
 
-(defn remove-value! [c k]
-  (cond (= c :cookie)
-        (set! *cookie-session* (dissoc *cookie-session* k))
-        (= c :memory)
-        (set! *memory-session* (dissoc *memory-session* k))))
+(defn remove-value! [k]
+  (set! *memory-session* (dissoc *memory-session* k)))
 
-(defn- assoc-if-not-same [resp req session-key session-state]
-  (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
 
-(defn wrap-stateful-sessions [app]
+(defn wrap-stateful-session-app-engine [app]
   (fn [req]
-    (binding [*cookie-session* (req :session)
-              *memory-session* (req :ae-session)]
+    (binding [*memory-session* (req :ae-session)]
       (-> (app req)
-        (assoc-if-not-same req :session *cookie-session*)
         (assoc-if-not-same req :ae-session *memory-session*)))))        
 
 (defn wrap-app-engine-session 

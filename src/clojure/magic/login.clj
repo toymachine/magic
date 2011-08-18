@@ -29,12 +29,12 @@
         http-request (req :request)
         parameter-map (new ParameterList (.getParameterMap http-request))
         auth-req-id (get-in req [:params "auth-req-id"])
-        discovered (session/get-value :memory auth-req-id)
+        discovered (session/get-value auth-req-id)
         query-string (str (.getQueryString http-request))
         receiving-url (str (.getRequestURL http-request) (when-not (empty? query-string) (str "?" query-string)))
         verification (.verify cm receiving-url parameter-map discovered)
         verified-id (str (.getVerifiedId verification))]
-    (session/remove-value! :memory auth-req-id)
+    (session/remove-value! auth-req-id)
     (member/set-logged-in-member-by-identifier! verified-id)
     (-> (response (html
                     [:h2 "auth-openid"]
@@ -54,7 +54,7 @@
         discoveries (.discover cm user-supplied-string)
         discovered (.associate cm discoveries)
         auth-req (.authenticate cm discovered return-url realm)]
-    (session/put-value! :memory auth-req-id discovered)
+    (session/put-value! auth-req-id discovered)
     (-> 
       (redirect (.getDestinationUrl auth-req true))
       ;we will need discovered later when op returns to /auth-openid        

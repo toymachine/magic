@@ -11,6 +11,7 @@
   (:use ring.middleware.session.cookie)
   (:use magic.util)
   (:require [magic.session :as session])
+  (:require [magic.cookie :as cookie])
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
   (:require [magic.member :as member])
@@ -78,7 +79,8 @@
 ;ring app (wrappers execute from outer (wrap-stacktrace) to inner (wrap-logged-in-member)
 (def app (-> main-routes
            (member/wrap-logged-in-member)
-           (session/wrap-stateful-sessions)
+           (session/wrap-stateful-session-app-engine)
+           (cookie/wrap-stateful-session-cookie)
            (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET}) :cookie-name "RS"})
            (session/wrap-app-engine-session {:session-key :ae-session})
            (wrap-params)
