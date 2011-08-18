@@ -14,6 +14,7 @@
   (:require [magic.cookie :as cookie])
   (:require [clojure.string :as string])
   (:require [magic.login :as login])
+  (:require [magic.openid :as openid])
   (:require [magic.member :as member])
   (:require [compojure.route :as route])
   (:require [appengine-magic.core :as ae]))
@@ -44,8 +45,8 @@
                       [:pre "ae-session: " (str-map (req :ae-session))]
                       [:pre "params: " (str-map (req :params))]
                       [:pre "base-url: " (base-url req)]
-                      [:pre "logged in member: " (member/get-logged-in)]
-                      [:pre "logged in member name: " (member/full-name (member/get-logged-in))]
+                      [:pre "logged in member: " (login/get-logged-in-member)]
+                      [:pre "logged in member name: " (member/full-name (login/get-logged-in-member))]
                       [:pre "evalled: " (eval x)]
                       ))
           (content-type "text/html"))]
@@ -59,8 +60,8 @@
      (include-css "/static/css/reset.css" "/static/css/main.css")]
     [:body
      [:h1 "Hello World!"]
-     (when (member/is-logged-in)
-       [:h2 "Hello loggedin, your name = " (member/full-name (member/get-logged-in))])
+     (when (login/is-logged-in)
+       [:h2 "Hello loggedin, your name = " (member/full-name (login/get-logged-in-member))])
      [:div {:id "page-body"}]
      (include-js "/static/js/jquery-1.6.2.min.js" "/static/js/main.js")
      ]))
@@ -70,15 +71,15 @@
   (GET "/index" [:as r] (index-page r))
   (GET "/test" [:as r] (test-page r))
   (GET "/auth-login" [] (login/login-page))
-  (GET "/auth-openid" [:as r] (login/auth-openid r))
-  (POST "/auth-openid" [:as r] (login/auth-openid r))
-  (POST "/request-openid" [:as r] (login/request-openid r))
+  (GET "/auth-openid" [:as r] (openid/auth-openid r))
+  (POST "/auth-openid" [:as r] (openid/auth-openid r))
+  (POST "/request-openid" [:as r] (openid/request-openid r))
   (route/files "/static" {:root "static"})
   (route/not-found "Page not found"))
 
 ;ring app (wrappers execute from outer (wrap-stacktrace) to inner (wrap-logged-in-member)
 (def app (-> main-routes
-           (member/wrap-logged-in-member)
+           (login/wrap-logged-in-member)
            (session/wrap-stateful-session-app-engine)
            (cookie/wrap-stateful-session-cookie)
            (wrap-session {:store (cookie-store {:key SESSION_COOKIE_SECRET}) :cookie-name "RS"})

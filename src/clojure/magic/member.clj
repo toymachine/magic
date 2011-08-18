@@ -13,33 +13,13 @@
 (defn find-by-identifier [identifier]
   "find a member by his identifier"
   (first (ds/query :kind Member
-                   :filter (= :identifier identifier))))
+                   :filter (= :identifier identifier))))  
 
-(def *logged-in-member* nil)
+(defn retrieve-by-id [member-id]
+  (ds/retrieve Member member-id))
 
-(defn set-logged-in-member-by-identifier! [identifier]
-  (if-let [member (find-by-identifier identifier)]
-    (cookie/put-value! :lm (ds/key-id member))))
-
-(defn- get-logged-in-member []
-  (if-let [logged-in-member-id (cookie/get-value :lm)]
-    (ds/retrieve Member logged-in-member-id)))
-
-(defn wrap-logged-in-member [app]
-  (fn [req]
-    (if-let [logged-in-member (get-logged-in-member)]			    
-      ;bind logged in member for this request		
-      (binding [*logged-in-member* logged-in-member]
-        (app req))	
-      ;no logged in member:
-      (app req))))
-
-(defn get-logged-in []
-  *logged-in-member*)
-
-(defn is-logged-in []
-  (not= *logged-in-member* nil))
-  
+(defn get-id [member]
+  (ds/key-id member))
 
 (defn create-henk []
   (let [henk (Member. "https://www.google.com/accounts/o8/id?id=AItOawlbMCGmVgXarambOMUhAgTVr9xkrLUwSYY" 

@@ -16,12 +16,3 @@
 
 (defn assoc-if-not-same [resp req session-key session-state]
   (if (not= (req session-key) session-state) (assoc resp session-key session-state) resp))
-
-
-(def a {:a 10 :b 20 :c 30})
-
-(def b {:a 11 :b 21 :d 40})
-
-(defn x []
-  (if-let [y (> 3 2)]
-    	y))

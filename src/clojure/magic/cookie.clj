@@ -1,7 +1,7 @@
 (ns magic.cookie
   (:use magic.util))
 
-(def *cookie-session* nil)
+(def ^{:private true} *cookie-session* nil)
 
 (defn get-value [k]
 	(get *cookie-session* k))

@@ -1,7 +1,7 @@
 (ns magic.session
   (:use magic.util))
 
-(def *memory-session* nil)
+(def ^{:private true} *memory-session* nil)
 
 (defn get-value [k]
 	(get *memory-session* k))

@@ -11,7 +11,7 @@
   (:import [org.openid4java.appengine AppEngineGuiceModule AppEngineNonceVerifier])
   (:import [org.openid4java.message ParameterList]))
 
-(def *consumer-manager*
+(def ^{:private true} *consumer-manager*
   (let [injector (Guice/createInjector [(new AppEngineGuiceModule)])]
     (doto (.getInstance injector ConsumerManager)
       (.setNonceVerifier (new AppEngineNonceVerifier 60)))))
