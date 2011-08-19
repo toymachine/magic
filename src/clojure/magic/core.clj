@@ -31,7 +31,8 @@
     [:div "params" (req :params)]))      
    
 (defn test-page [req]
-  (let [resp
+  (let [x '(+ 1 2)
+        resp
         (-> 
           (response (html
                       [:h2 "Test"]
@@ -44,6 +45,7 @@
                       [:pre "base-url: " (base-url req)]
                       [:pre "logged in member: " (member/get-logged-in)]
                       [:pre "logged in member name: " (member/full-name (member/get-logged-in))]
+                      [:pre "evalled: " (eval x)]
                       ))
           (content-type "text/html"))]
     resp))

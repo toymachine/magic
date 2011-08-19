@@ -1,4 +1,5 @@
 clean:
+	lein clean
 	find . -name '*.jar' -exec rm -rf {} \;
 
 deploy: deps
